@@ -1,0 +1,63 @@
+Exception: Access Violation (code 0xc0000005) at address 0048829F in thread 2B00
+Module: PlantsVsZombies.exe
+Module Handle:00400000
+Exception Address:PlantsVsZombies.exe+8829F(0048829F)
+Compile Time:Mar 29 2025 21:41:51
+Logical Address: 0001:0008729F
+
+0013F70C 0048829F 0001:0008729F PlantsVsZombies.exe
+Params: 00000057 000000E0 00000119 00000119
+
+
+EAX:0013F7F8 EBX:00000000 ECX:B235864A EDX:25C33288 ESI:25C33290 EDI:25C33260
+EIP:0048829F ESP:0013F6E0  EBP:25C33288
+CS:0023 SS:002B DS:002B ES:002B FS:0053 GS:002B
+Flags:00010202
+
+[esp-28]:00000000	[esp-24]:00000000	[esp-20]:00000000	[esp-1C]:00000253	[esp-18]:004182A5	[esp-14]:2ABCA6B8	[esp-10]:0019FA98	[esp-C]:00000003	[esp-8]:2D362BD8	[esp-4]:0013FBB0	[esp+0]:25C33260	[esp+4]:25C33290	[esp+8]:0019FA98	[esp+C]:00000000	[esp+10]:00000000	[esp+14]:00000000	[esp+18]:0072289C	[esp+1C]:00000000	[esp+20]:25C33260	[esp+24]:347E9BD8	[esp+28]:16D33790	
+
+Disassembly Code:
+0048826D	adc dl, bl
+0048826F	je 0x488295
+00488271	sbb cl, bl
+00488273	pop esp
+00488274	and al, 0x14
+00488276	cmp dword ptr [ebp + 0x3c], 0
+0048827A	jle 0x488367
+00488280	mov eax, dword ptr [ebp + 0x14]
+00488283	fld dword ptr [ebp + 0x44]
+00488286	neg eax
+00488288	mov dword ptr [esp + 0x10], eax
+0048828C	fimul dword ptr [esp + 0x10]
+00488290	fstp dword ptr [esp + 0x10]
+00488294	fld dword ptr [esp + 0x10]
+00488298	fcom st(1)
+0048829A	fnstsw ax
+0048829C	fstp st(1)
+>>0048829E	test ah, 0x41
+004882A1	jne 0x4882b6
+004882A3	fadd qword ptr [0x679300]
+004882A9	call 0x6397d0
+004882AE	mov ebx, eax
+004882B0	mov dword ptr [esp + 0x14], ebx
+004882B4	jmp 0x4882c7
+004882B6	fsub qword ptr [0x679300]
+004882BC	call 0x6397d0
+004882C1	mov ebx, eax
+004882C3	mov dword ptr [esp + 0x14], eax
+004882C7	mov ecx, dword ptr [esp + 0xac]
+004882CE	push ecx
+
+Windows Ver: NT 6.2  Build 9200
+DDraw Ver: 
+DSound Ver: 
+
+Product: PlantsVsZombies
+Version: 1.0.0.1051
+Time Loaded: 00:01:19
+Fullscreen: ·ñ
+Primary ThreadId: 2B00
+Times Played: 0
+Build Num: 0
+Build Date: 
+
