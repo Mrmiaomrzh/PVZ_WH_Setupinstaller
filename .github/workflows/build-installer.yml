@@ -28,5 +28,5 @@ jobs:
           path: Output/*.exe
 
           git diff-index --quiet HEAD || git commit -m "ci: 自動構建安裝程序"   
-          git push
+            git push
 
