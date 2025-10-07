@@ -15,11 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Get Inno Setup Compiler Version
-        shell: cmd
-        run: |
-          "C:\Program Files (x86)\Inno Setup 6\iscc.exe" /?
-
       - name: Compile Inno Setup script
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
