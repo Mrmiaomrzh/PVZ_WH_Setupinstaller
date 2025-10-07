@@ -17,7 +17,7 @@ jobs:
 
       - name: Get Inno Setup Compiler Version
         run: |
-          iscc.exe /?
+          "C:\Program Files (x86)\Inno Setup 6\iscc.exe" /?
 
       - name: Compile Inno Setup script
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
