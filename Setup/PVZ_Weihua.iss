@@ -55,6 +55,10 @@ SolidCompression=yes
 ; 界面选择"现代化"
 WizardStyle=modern
 
+[Languages]
+; 英文作為預設語言之一
+Name: "chinesesimplified"; MessagesFile: "..\Setup\ChineseSimplified.isl"
+
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
