@@ -6,6 +6,8 @@
 #define AppVerName "威化版 v" + MyAppVerNum
 #define MyAppExeName "PlantsVsZombies.exe"
 #define MyaccName "PVZ_Weihua_威化版"
+#define CCT GetDateTimeString('yyyymmdd', '', '')
+；CCT: Compilation completion time
 
 [Setup]
 ; 唯一 AppId，请勿在其他安装包中复用
@@ -46,7 +48,7 @@ InfoAfterFile=..\PVZ_Weihua\{#MyAppVerNum}\IPT\IAF\IAF-{#MyAppVerNum}.txt
 ; 打包位置:
 OutputDir=..\Output
 ; 打包名称:
-OutputBaseFilename=PVZ_Weihua {#MyAppVerNum} 安装程序
+OutputBaseFilename=PVZ_Weihua {#MyAppVerNum} {#CCT} 安装程序
 ; 打包图标:
 SetupIconFile=..\PVZ_Weihua\{#MyAppVerNum}\Ico\weihua {#MyAppVerNum}.ico
 
