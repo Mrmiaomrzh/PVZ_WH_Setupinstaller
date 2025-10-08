@@ -6,7 +6,8 @@
 #define AppVerName "威化版 v" + MyAppVerNum
 #define MyAppExeName "PlantsVsZombies.exe"
 #define MyaccName "PVZ_Weihua_威化版"
-#define CCT GetDateTimeString('yyyymmdd', '', '')
+#define CCT 
+GetDateTimeString('yyyymmdd', '', '')
 ；CCT: Compilation completion time
 
 [Setup]
