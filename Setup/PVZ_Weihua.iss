@@ -57,7 +57,7 @@ SolidCompression=yes
 ; 界面选择"现代化"
 WizardStyle=modern
 
-[语言]
+[languages]
 Name: "chinesesimplified"; MessagesFile: "..\Setup\ChineseSimplified.isl"
 
 [Tasks]
