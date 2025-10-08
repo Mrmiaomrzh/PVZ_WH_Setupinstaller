@@ -6,9 +6,8 @@
 #define AppVerName "威化版 v" + MyAppVerNum
 #define MyAppExeName "PlantsVsZombies.exe"
 #define MyaccName "PVZ_Weihua_威化版"
-#define CCT 
-GetDateTimeString('yyyymmdd', '', '')
-；CCT: Compilation completion time
+#define CCT GetDateTimeString('yyyymmdd', '', '')
+;CCT: Compilation completion time
 
 [Setup]
 ; 唯一 AppId，请勿在其他安装包中复用
