@@ -1,4 +1,4 @@
-name: Build Inno Setup Installer
+name: Build Installer
 
 on:
   push:
