@@ -7,8 +7,8 @@ on:
         description: '请输入版本号 (例如 1.2.0)'
         required: true
         default: '1.0.0'
-      add_tools:
-        description: '是否添加 Tools 文件夹到 PVZ_Weihua？'
+#      add_tools:
+#        description: '是否添加 Tools 文件夹到 PVZ_Weihua？'
         type: boolean
         default: false
       before_install_content:
