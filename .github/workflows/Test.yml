@@ -45,6 +45,14 @@ jobs:
           rm -rf "PVZ_Weihua"
           mkdir -p "PVZ_Weihua"
 
+          # 複製 src/Tools 到 PVZ_Weihua 資料夾
+          if [ -d "src/Tools" ]; then
+            cp -af "src/Tools" "PVZ_Weihua/"
+            echo "✅ 已複製 Tools 資料夾到 PVZ_Weihua"
+          else
+            echo "⚠️ 找不到 src/Tools 來源"
+          fi
+
           # 使用邏輯運算符處理 Tools 複製
           # 只有當 ADD_TOOLS 為 true 且 src/Tools 資料夾存在時才執行複製
           [ "$ADD_TOOLS" = "true" ] && [ -d "src/Tools" ] && cp -af "src/Tools" "PVZ_Weihua/" && echo "✅ 已包含 Tools 資料夾"
