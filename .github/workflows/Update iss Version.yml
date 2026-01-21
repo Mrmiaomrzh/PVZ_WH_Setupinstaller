@@ -54,6 +54,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"  
-          git add "Backup/iss/" "ConfigurationTemplate/iss/"
+          git add "Backup/iss/" "src/iss/"
           git commit -m "Update ISS: Version ${{ github.event.inputs.version_input }}"
           git push
