@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version_input:
-        description: '请输入版本号 Version'
+        description: 'Version|版本号'
         required: true
         default: '1.0.0'
 
@@ -14,7 +14,6 @@ jobs:
     permissions:
       contents: write
     
-    # 设置全局时区为东八区
     env:
       TZ: Asia/Shanghai
 
@@ -22,36 +21,45 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Process ISS File
+      - name: Process ISS Files
         run: |
           # 1. 变量准备
           ORIGINAL_FILE="Setup/PVZ_Weihua.iss"
           NEW_VERSION="${{ github.event.inputs.version_input }}"
-          
-          # 获取东八区当前时间 (格式: 20260121_1645)
           TIME_STAMP=$(date +'%Y%m%d_%H%M')
           
-          # 定义新文件名及路径
-          NEW_FILE_NAME="PVZ_Weihua_${NEW_VERSION}_${TIME_STAMP}.iss"
-          TARGET_DIR="Backup/iss"
-          TARGET_PATH="${TARGET_DIR}/${NEW_FILE_NAME}"
+          # 定义路径
+          BACKUP_DIR="Backup/iss"
+          TEMPLATE_DIR="ConfigurationTemplate/iss"
+          
+          # 定义文件名
+          BACKUP_FILE_NAME="PVZ_Weihua_${NEW_VERSION}_${TIME_STAMP}.iss"
+          TEMPLATE_FILE_NAME="PVZ_Weihua.iss"
 
           # 确保目标目录存在
-          mkdir -p "$TARGET_DIR"
+          mkdir -p "$BACKUP_DIR"
+          mkdir -p "$TEMPLATE_DIR"
 
-          # 2. 修改并另存为新文件
-          # 使用 sed 修改 #define 变量，支持匹配单双引号
+          # 2. 修改并分别保存到两个位置
+          # 备份
           sed -e "s/\(#define MyAppVerNum \)\".*\"/\1\"$NEW_VERSION\"/" \
               -e "s/\(#define MyAppVerFull \)\".*\"/\1\"$NEW_VERSION\"/" \
-              "$ORIGINAL_FILE" > "$TARGET_PATH"
+              "$ORIGINAL_FILE" > "${BACKUP_DIR}/${BACKUP_FILE_NAME}"
+          # 预安装配置
+          sed -e "s/\(#define MyAppVerNum \)\".*\"/\1\"$NEW_VERSION\"/" \
+              -e "s/\(#define MyAppVerFull \)\".*\"/\1\"$NEW_VERSION\"/" \
+              "$ORIGINAL_FILE" > "${TEMPLATE_DIR}/${TEMPLATE_FILE_NAME}"
 
-          echo "✅ 文件处理完成: $TARGET_PATH"
-          echo "⏰ 当前北京时间: $(date)"
+          echo "✅ 备份已生成: ${BACKUP_DIR}/${BACKUP_FILE_NAME}"
+          echo "✅ 预安装文件已更新: ${TEMPLATE_DIR}/${TEMPLATE_FILE_NAME}"
 
       - name: Commit and Push
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add "Installation program/"
-          git commit -m "Update iss to version ${{ github.event.inputs.version_input }}"
+          
+          # 添加所有涉及的目录
+          git add "Backup/iss/" "ConfigurationTemplate/iss/"
+  
+          git commit -m "Update ISS: version ${{ github.event.inputs.version_input }}"
           git push
