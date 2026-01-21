@@ -81,11 +81,11 @@ jobs:
           if [ "$ADD_TOOLS" = "true" ]; then
             echo "🚀 正在执行复制操作..."
             mkdir -p "PVZ_Weihua"
-            if [ -d "src/tools" ]; then
-              cp -rv src/tools/. PVZ_Weihua/
+            if [ -d "src/Tools" ]; then
+              cp -rv src/Tools/. PVZ_Weihua/
               echo "✅ tools 文件夹内容已成功复制到 PVZ_Weihua"
             else
-              echo "❌ 错误: 找不到源目录 src/tools"
+              echo "❌ 错误: 找不到源目录 src/Tools"
               exit 1
             fi
           else
