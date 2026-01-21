@@ -47,15 +47,13 @@ jobs:
           sleep 0.5
           mkdir -p "PVZ_Weihua"
           mkdir -p "Setup/ipt"
-          mkdir -p "Backup/IPT"
-          mkdir -p "Backup/iss"
-          mkdir -p "ConfigurationTemplate/iss"
 
           # --- 2. 复制 Tools 文件夹 ---
           if [ "$SHOULD_ADD_TOOLS" = "true" ]; then
             echo "🚀 User selected [Yes], copying Tools..."
             sleep 0.5
             if [ -d "src/Tools" ]; then
+              sleep 0.5
               cp -af "src/Tools" "PVZ_Weihua/"
               echo "✅ src/Tools folder copied successfully."
             elif [ -d "src/tools" ]; then
@@ -66,7 +64,9 @@ jobs:
               exit 1
             fi
           else
+            sleep 0.5
             echo "ℹ️ User selected [No], skipping Tools folder."
+            mkdir -p ".\PVZ_Weihua"
           fi
 
           # --- 3. 处理 IPT 文本与备份 ---
