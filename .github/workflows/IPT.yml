@@ -42,14 +42,14 @@ jobs:
           if [ -n "${{ github.event.inputs.before_install_content }}" ]; then
             echo "${{ github.event.inputs.before_install_content }}" > "$BEFORE_FILE"
           else
-            cp "src/ipt/LBF.txt" "$BEFORE_FILE"
+            cp "src/IPT/LBF.txt" "$BEFORE_FILE"
           fi
 
           # 处理安装后内容
           if [ -n "${{ github.event.inputs.after_install_content }}" ]; then
             echo "${{ github.event.inputs.after_install_content }}" > "$AFTER_FILE"
           else
-            cp "src/ipt/IAF.txt" "$AFTER_FILE"
+            cp "src/IPT/IAF.txt" "$AFTER_FILE"
           fi
 
       - name: Commit and Push
@@ -58,6 +58,6 @@ jobs:
           git config --local user.name "github-actions[bot]"
           
           # 提交：生成的 IPF/IAF 文件
-          git add "Setup/ipt/" "Backup/iss/"
+          git add "Setup/IPT/" "Backup/iss/"
           git commit -m "Update ISS: version ${{ github.event.inputs.version_input }}"
           git push
