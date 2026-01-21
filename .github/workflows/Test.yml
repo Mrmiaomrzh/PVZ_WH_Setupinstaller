@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version_input:
-        description: '請輸入版本號 (如 1.2.0)'
+        description: '请输入版本号 (如 1.2.0)'
         required: true
         default: '1.0.0'
       add_tools:
@@ -12,10 +12,10 @@ on:
         type: boolean
         default: false
       before_install_content:
-        description: '修改【安裝前文本】內容 (留空則使用預設)'
+        description: '修改【安装前文本】内容'
         required: false
       after_install_content:
-        description: '修改【安裝後文本】內容 (留空則使用預設)'
+        description: '修改【安装后文本】内容'
         required: false
 
 jobs:
@@ -39,38 +39,33 @@ jobs:
 
       - name: Process Tools and IPT Files
         run: |
-          # 1. 處理 Tools 文件夹
+          # 1. 处理 Tools 文件夹
           if [ "$ADD_TOOLS" = "true" ]; then
             mkdir -p "PVZ_Weihua"
-            if [ -d "src/tools" ]; then
-              cp -rv src/tools/. PVZ_Weihua/
-            fi
+            [ -d "src/tools" ] && cp -rv src/tools/. PVZ_Weihua/
           fi
 
-          # 2. 處理 Setup/ipt 中的文件 (用於編譯)
-          IPT_DIR="Setup/ipt"
-          mkdir -p "$IPT_DIR"
+          # 2. 处理 IPT 及其备份 (LBF & LAF)
+          mkdir -p "Setup/ipt" "Backup/IPT"
           
-          # 3. 準備 IPT 備份目錄
-          IPT_BACKUP_DIR="Backup/IPT"
-          mkdir -p "$IPT_BACKUP_DIR"
-
-          # 處理安裝前文本 (IPF/IBF)
+          # 处理安装前文本
           if [ -n "${{ github.event.inputs.before_install_content }}" ]; then
-            echo "${{ github.event.inputs.before_install_content }}" > "${IPT_DIR}/IPF-${VER}.txt"
-            echo "${{ github.event.inputs.before_install_content }}" > "${IPT_BACKUP_DIR}/LBF_${VER}_${TIME_STAMP}.txt"
+            TEXT="${{ github.event.inputs.before_install_content }}"
+            echo "$TEXT" > "Setup/ipt/IPF-${VER}.txt"
+            echo "$TEXT" > "Backup/IPT/LBF_${VER}_${TIME_STAMP}.txt"
           else
-            cp "src/IPT/IBF.txt" "${IPT_DIR}/IPF-${VER}.txt" || echo "IBF missing"
-            cp "src/IPT/IBF.txt" "${IPT_BACKUP_DIR}/LBF_${VER}_${TIME_STAMP}.txt" || echo "IBF backup failed"
+            cp "src/IPT/IBF.txt" "Setup/ipt/IPF-${VER}.txt"
+            cp "src/IPT/IBF.txt" "Backup/IPT/LBF_${VER}_${TIME_STAMP}.txt"
           fi
 
-          # 處理安裝後文本 (IAF/LAF)
+          # 处理安装后文本
           if [ -n "${{ github.event.inputs.after_install_content }}" ]; then
-            echo "${{ github.event.inputs.after_install_content }}" > "${IPT_DIR}/IAF-${VER}.txt"
-            echo "${{ github.event.inputs.after_install_content }}" > "${IPT_BACKUP_DIR}/LAF_${VER}_${TIME_STAMP}.txt"
+            TEXT="${{ github.event.inputs.after_install_content }}"
+            echo "$TEXT" > "Setup/ipt/IAF-${VER}.txt"
+            echo "$TEXT" > "Backup/IPT/LAF_${VER}_${TIME_STAMP}.txt"
           else
-            cp "src/IPT/IAF.txt" "${IPT_DIR}/IAF-${VER}.txt" || echo "IAF missing"
-            cp "src/IPT/IAF.txt" "${IPT_BACKUP_DIR}/LAF_${VER}_${TIME_STAMP}.txt" || echo "IAF backup failed"
+            cp "src/IPT/IAF.txt" "Setup/ipt/IAF-${VER}.txt"
+            cp "src/IPT/IAF.txt" "Backup/IPT/LAF_${VER}_${TIME_STAMP}.txt"
           fi
 
       - name: Modify Original ISS File
@@ -80,47 +75,40 @@ jobs:
           sed -i "s/#define MyAppVerFull \".*\"/#define MyAppVerFull \"$VER\"/" "$ISS_FILE"
           sed -i "s|SetupIconFile=.*|SetupIconFile=Setup\\\\ICO\\\\weihua ${VER}.ico|" "$ISS_FILE"
           
-          # 備份 ISS
           mkdir -p "Backup/iss" "ConfigurationTemplate/iss"
           cp "$ISS_FILE" "Backup/iss/PVZ_Weihua_${VER}_${TIME_STAMP}.iss"
           cp "$ISS_FILE" "ConfigurationTemplate/iss/PVZ_Weihua.iss"
 
       - name: Generate Build Log
         run: |
-          LOG_DIR="Setup/Log"
-          mkdir -p "$LOG_DIR"
-          LOG_FILE="${LOG_DIR}/${VER}_${TIME_STAMP}.log"
-          [ "$ADD_TOOLS" = "true" ] && TOOLS_ST="Added / 已添加" || TOOLS_ST="Skipped / 已跳過"
+          mkdir -p "Setup/Log"
+          LOG_FILE="Setup/Log/${VER}_${TIME_STAMP}.log"
+          [ "$ADD_TOOLS" = "true" ] && TOOLS_ST="Added / 已添加" || TOOLS_ST="Skipped / 已跳过"
           
+          # 核心修复：EOF 必须置于行首，且前后无缩进
           cat <<EOF > "$LOG_FILE"
 ==================================================
            PVZ_Weihua Update Log / 更新日志
 ==================================================
-Build Time / 編譯時間: $LOG_TIME (CST)
-Version / 版本號: $VER
+Build Time / 编译时间: $LOG_TIME (CST)
+Version / 版本号: $VER
 --------------------------------------------------
-[Tasks / 任務詳情]
+[Tasks / 任务详情]
 - ISS File Updated / ISS文件已更新: Setup/PVZ_Weihua.iss
-- IPT Backup / IPT備份: Backup/IPT/ (LBF & LAF)
-- Icon Path / 圖標路徑: Setup/ICO/weihua ${VER}.ico
-- Tools Folder / 工具文件夾: $TOOLS_ST
-- Installation Text / 安裝文本: Updated (IPF-${VER}.txt, IAF-${VER}.txt)
+- IPT Backup / IPT备份: Backup/IPT/ (LBF & LAF)
+- Icon Path / 图标路径: Setup/ICO/weihua ${VER}.ico
+- Tools Folder / 工具文件夹: $TOOLS_ST
+- Installation Text / 安装文本: Updated (IPF-${VER}.txt, IAF-${VER}.txt)
 
-[System Info / 系統信息]
-- Triggered by / 觸發者: ${{ github.actor }}
+[System Info / 系统信息]
+- Triggered by / 触发者: ${{ github.actor }}
 ==================================================
 EOF
+          echo "✅ Log generated."
 
       - name: Commit and Push
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
-          git add Setup/PVZ_Weihua.iss Setup/ipt/ Setup/Log/ Backup/iss/ Backup/IPT/ ConfigurationTemplate/iss/ PVZ_Weihua/
-          
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Update ISS, IPT Backup & Log: v$VER at $LOG_TIME"
-            git push
-          fi
+          git add .
+          git diff --staged --quiet || (git commit -m "Update v$VER at $LOG_TIME" && git push)
