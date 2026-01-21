@@ -29,20 +29,47 @@ jobs:
             exit 1
           fi
 
-      - name: Update MyAppVer in PVZ_Weihua.iss
+      - name: Update MyAppVer in PVZ_Weihua.iss and add versioned copy
         run: |
           file=Setup/PVZ_Weihua.iss
           new="${{ github.event.inputs.version }}"
+
+          # sanitize：去掉换行和双引号，防止破坏 sed 表达式或文件名
+          new="$(echo "$new" | tr -d '\r\n"')"
+
+          if [ -z "$new" ]; then
+            echo "version is required"
+            exit 1
+          fi
+
+          if ! echo "$new" | grep -Eq '^[0-9]+(\.[0-9]+)*$'; then
+            echo "invalid version format"
+            exit 1
+          fi
+
           if [ ! -f "$file" ]; then
             echo "File $file not found"
             exit 1
           fi
-          sed -E -i.bak "s/^#define MyAppVerNum[[:space:]]+\"[^"]+\"/#define MyAppVerNum \"${new}\"/" "$file"
-          sed -E -i.bak "s/^#define MyAppVerFull[[:space:]]+\"[^"]+\"/#define MyAppVerFull \"${new}\"/" "$file"
+
+          # 更新文件内部版本声明（使用单引号+拼接，避免引号转义问题）
+          sed -E -i.bak 's/^#define MyAppVerNum[[:space:]]+"[^"]+"/#define MyAppVerNum "\"${new}\""/' "$file"
+          sed -E -i.bak 's/^#define MyAppVerFull[[:space:]]+"[^"]+"/#define MyAppVerFull "\"${new}\""/' "$file"
+
+          # 生成时间戳并构成新文件名（保留 .iss）
+          ts="$(date +%Y%m%d_%H%M%S)"
+          newfilename="Setup/PVZ_Weihua_${new}_${ts}.iss"
+
+          # 复制原文件为带版本和时间戳的副本，保留原文件
+          cp "$file" "$newfilename"
+
+          # 删除 sed 产生的 .bak 备份（如不需要保留）
+          rm -f Setup/*.bak
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$file"
-          git commit -m "chore: bump PVZ version to ${new}" || echo "No changes to commit"
+          git add "$newfilename"
+          git commit -m "chore: bump PVZ version to ${new} and add $(basename "$newfilename")" || echo "No changes to commit"
 
       - name: Push changes
         env:
