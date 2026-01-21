@@ -29,7 +29,7 @@ jobs:
 
       - name: Process IPT Text Files
         run: |
-          # 1. 确保版本号存在，如果为空则强制停止
+          # 检查版本号
           VER="${{ github.event.inputs.version_input }}"
           if [ -z "$VER" ]; then
             echo "❌ 错误: 版本号不能为空"
@@ -39,34 +39,41 @@ jobs:
           IPT_DIR="Setup/ipt"
           mkdir -p "$IPT_DIR"
           
-          # 2. 定义目标完整路径
+          # 定义目标完整路径
           BEFORE_FILE="${IPT_DIR}/IPF-${VER}.txt"
           AFTER_FILE="${IPT_DIR}/IAF-${VER}.txt"
           
-          echo "目标路径: $BEFORE_FILE"
-
-          # 3. 处理安装前内容 (IBF.txt)
-          # 注意：使用 python 或 cat 避免 echo 的双引号被 shell 错误解析
+          # 处理安装前内容 (IBF.txt)
           if [ -n "${{ github.event.inputs.before_install_content }}" ]; then
             cat <<EOF > "$BEFORE_FILE"
           ${{ github.event.inputs.before_install_content }}
           EOF
-            echo "✅ 已根据输入修改并生成: $BEFORE_FILE"
           else
             cp "src/IPT/IBF.txt" "$BEFORE_FILE" || { echo "❌ 找不到 src/IPT/IBF.txt"; exit 1; }
-            echo "ℹ️ 已使用 src/IPT 默认模板"
           fi
 
-          # 4. 处理安装后内容 (IAF.txt)
+          # 处理安装后内容 (IAF.txt)
           if [ -n "${{ github.event.inputs.after_install_content }}" ]; then
             cat <<EOF > "$AFTER_FILE"
           ${{ github.event.inputs.after_install_content }}
           EOF
-            echo "✅ 已根据输入修改并生成: $AFTER_FILE"
           else
             cp "src/IPT/IAF.txt" "$AFTER_FILE" || { echo "❌ 找不到 src/IPT/IAF.txt"; exit 1; }
-            echo "ℹ️ 已使用 src/IPT 默认模板"
           fi
+
+          # 处理 Tools 文件夹
+          # 如果用户勾选了 "add_tools"
+          if [ "$ADD_TOOLS" = "true" ]; then
+            mkdir -p "PVZ_Weihua"
+            if [ -d "src/tools" ]; then
+              cp -r src/tools/* PVZ_Weihua/
+            else
+              echo "⚠️ 警告: 找不到 src/tools 目录，跳过复制"
+            fi
+          else
+            echo "ℹ️ 用户选择不添加 tools 文件夹"
+          fi
+
 
       - name: Process ISS File
         run: |
@@ -91,12 +98,8 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          git add "Setup/ipt/" "Backup/iss/" "ConfigurationTemplate/iss/"
+          git add "Setup/ipt/" "Backup/iss/" "ConfigurationTemplate/iss/" "PVZ_Weihua/""
           
-          # 检查是否有改动，防止 commit 报错
-          if git diff --staged --quiet; then
-            echo "没有发现文件变动，跳过提交"
-          else
-            git commit -m "Update ISS: version ${{ github.event.inputs.version_input }}"
-            git push
-          fi
+          git commit -m "Update ISS: version ${{ github.event.inputs.version_input }}"
+          git push
+
