@@ -1,4 +1,4 @@
-name: Update IPT Files
+name: Update IPT Text and ISS Files
 
 on:
   workflow_dispatch:
@@ -8,10 +8,10 @@ on:
         required: true
         default: '1.0.0'
       before_install_content:
-        description: '更新内容 (留空则使用默认)'
+        description: '更新内容 (留空则沿用 src/IPT 中的默认文本)'
         required: false
       after_install_content:
-        description: '安装后内容 (留空则使用默认)'
+        description: '安装后内容 (留空则沿用 src/IPT 中的默认文本)'
         required: false
 
 jobs:
@@ -27,18 +27,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Update IPT Files
+      - name: Process IPT Text Files
         run: |
-          # 1. 基础变量
+          # 1. 确保版本号存在，如果为空则强制停止
           VER="${{ github.event.inputs.version_input }}"
-          IPT_DIR="Setup/IPT"
+          if [ -z "$VER" ]; then
+            echo "❌ 错误: 版本号不能为空"
+            exit 1
+          fi
+
+          IPT_DIR="Setup/ipt"
           mkdir -p "$IPT_DIR"
           
-          # 定义目标文件名
-          BEFORE_NAME="IPF-${VER}.txt"
-          AFTER_NAME="IAF-${VER}.txt"
+          # 2. 定义目标完整路径
+          BEFORE_FILE="${IPT_DIR}/IPF-${VER}.txt"
+          AFTER_FILE="${IPT_DIR}/IAF-${VER}.txt"
           
-         # 处理安装前内容 (IBF.txt)
+          echo "目标路径: $BEFORE_FILE"
+
+          # 3. 处理安装前内容 (IBF.txt)
+          # 注意：使用 python 或 cat 避免 echo 的双引号被 shell 错误解析
           if [ -n "${{ github.event.inputs.before_install_content }}" ]; then
             cat <<EOF > "$BEFORE_FILE"
           ${{ github.event.inputs.before_install_content }}
@@ -60,12 +68,35 @@ jobs:
             echo "ℹ️ 已使用 src/IPT 默认模板"
           fi
 
+      - name: Process ISS File
+        run: |
+          VER="${{ github.event.inputs.version_input }}"
+          TIME_STAMP=$(date +'%Y%m%d_%H%M')
+          
+          ORIGINAL_FILE="Setup/PVZ_Weihua.iss"
+          BACKUP_DIR="Backup/iss"
+          TEMPLATE_DIR="ConfigurationTemplate/iss"
+          
+          mkdir -p "$BACKUP_DIR" "$TEMPLATE_DIR"
+
+          # 修改并分发
+          sed -e "s/\(#define MyAppVerNum \)\".*\"/\1\"$VER\"/" \
+              -e "s/\(#define MyAppVerFull \)\".*\"/\1\"$VER\"/" \
+              "$ORIGINAL_FILE" > "${BACKUP_DIR}/PVZ_Weihua_${VER}_${TIME_STAMP}.iss"
+
+          cp "${BACKUP_DIR}/PVZ_Weihua_${VER}_${TIME_STAMP}.iss" "${TEMPLATE_DIR}/PVZ_Weihua.iss"
+
       - name: Commit and Push
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          # 提交：生成的 IPF/IAF 文件
-          git add "Setup/IPT/" "Backup/iss/"
-          git commit -m "Update ISS: version ${{ github.event.inputs.version_input }}"
-          git push
+          git add "Setup/ipt/" "Backup/iss/" "ConfigurationTemplate/iss/"
+          
+          # 检查是否有改动，防止 commit 报错
+          if git diff --staged --quiet; then
+            echo "没有发现文件变动，跳过提交"
+          else
+            git commit -m "Update ISS: version ${{ github.event.inputs.version_input }}"
+            git push
+          fi
