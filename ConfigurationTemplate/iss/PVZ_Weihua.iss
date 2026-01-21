@@ -1,8 +1,8 @@
 ; PVZ_Weihua 安装程序
 
 #define MyAppName "植物大战僵尸威化版 PVZ_Weihua"
-#define MyAppVerNum "1.6.0"
-#define MyAppVerFull "1.6.0"
+#define MyAppVerNum "1.2.0"
+#define MyAppVerFull "1.2.0"
 #define AppVerName "威化版 v" + MyAppVerNum
 #define MyAppExeName "PlantsVsZombies.exe"
 #define MyaccName "PVZ_Weihua_威化版"
@@ -50,7 +50,7 @@ OutputDir=..\Output
 ; 打包名称:
 OutputBaseFilename=PVZ_Weihua {#MyAppVerNum} {#CCT} 安装程序
 ; 打包图标:
-SetupIconFile=Setup\ICO\weihua 1.5.0.ico
+SetupIconFile=Setup\ICO\weihua 1.2.0.ico
 
 ; 开启"固实压缩"[SolidCompression]
 SolidCompression=yes
