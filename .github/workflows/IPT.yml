@@ -1,0 +1,63 @@
+name: Update IPT Files
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_input:
+        description: 'Version|版本号'
+        required: true
+        default: '1.0.0'
+      before_install_content:
+        description: '更新内容 (留空则使用默认)'
+        required: false
+      after_install_content:
+        description: '安装后内容 (留空则使用默认)'
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    env:
+      TZ: Asia/Shanghai
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update IPT Files
+        run: |
+          # 1. 基础变量
+          VER="${{ github.event.inputs.version_input }}"
+          IPT_DIR="Setup/ipt"
+          mkdir -p "$IPT_DIR"
+          
+          # 定义目标文件名
+          BEFORE_NAME="IPF-${VER}.txt"
+          AFTER_NAME="IAF-${VER}.txt"
+          
+          # 处理更新内容
+          if [ -n "${{ github.event.inputs.before_install_content }}" ]; then
+            echo "${{ github.event.inputs.before_install_content }}" > "$BEFORE_FILE"
+          else
+            cp "src/ipt/LBF.txt" "$BEFORE_FILE"
+          fi
+
+          # 处理安装后内容
+          if [ -n "${{ github.event.inputs.after_install_content }}" ]; then
+            echo "${{ github.event.inputs.after_install_content }}" > "$AFTER_FILE"
+          else
+            cp "src/ipt/IAF.txt" "$AFTER_FILE"
+          fi
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # 提交：生成的 IPF/IAF 文件
+          git add "Setup/ipt/" "Backup/iss/"
+          git commit -m "Update ISS: version ${{ github.event.inputs.version_input }}"
+          git push
