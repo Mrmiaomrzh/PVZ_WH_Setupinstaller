@@ -1,4 +1,4 @@
-name: Update IPT and ISS Files
+name: Update IPT Files
 
 on:
   workflow_dispatch:
@@ -38,22 +38,18 @@ jobs:
           BEFORE_NAME="IPF-${VER}.txt"
           AFTER_NAME="IAF-${VER}.txt"
           
-          # 2. 处理 安装前文件 (IPF)
+          # 处理更新内容
           if [ -n "${{ github.event.inputs.before_install_content }}" ]; then
-            echo "${{ github.event.inputs.before_install_content }}" > "${IPT_DIR}/${BEFORE_NAME}"
-            echo "✅ 已创建内容文件: ${BEFORE_NAME}"
+            echo "${{ github.event.inputs.before_install_content }}" > "$BEFORE_FILE"
           else
-            cp "src/ipt/安装前文件.txt" "${IPT_DIR}/${BEFORE_NAME}" || echo "⚠️ 找不到默认源文件"
-            echo "ℹ️ 已从默认模板创建: ${BEFORE_NAME}"
+            cp "src/ipt/LBF.txt" "$BEFORE_FILE"
           fi
 
-          # 3. 处理 安装后文件 (IAF)
+          # 处理安装后内容
           if [ -n "${{ github.event.inputs.after_install_content }}" ]; then
-            echo "${{ github.event.inputs.after_install_content }}" > "${IPT_DIR}/${AFTER_NAME}"
-            echo "✅ 已创建内容文件: ${AFTER_NAME}"
+            echo "${{ github.event.inputs.after_install_content }}" > "$AFTER_FILE"
           else
-            cp "src/ipt/安装后文件.txt" "${IPT_DIR}/${AFTER_NAME}" || echo "⚠️ 找不到默认源文件"
-            echo "ℹ️ 已从默认模板创建: ${AFTER_NAME}"
+            cp "src/ipt/IAF.txt" "$AFTER_FILE"
           fi
 
       - name: Commit and Push
