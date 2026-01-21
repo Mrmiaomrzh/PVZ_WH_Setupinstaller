@@ -30,8 +30,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Initialize Environment Variables
+      - name: Initialize Variables
         run: |
+          # 使用 GITHUB_ENV 确保全局可用
           echo "VER=${{ github.event.inputs.version_input }}" >> $GITHUB_ENV
           echo "TIME_STAMP=$(date +'%Y%m%d_%H%M')" >> $GITHUB_ENV
           echo "LOG_TIME=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
@@ -39,7 +40,7 @@ jobs:
 
       - name: Process Tools and IPT Files
         run: |
-          # 1. 处理 Tools 文件夹
+          # 1. 处理 Tools
           if [ "$ADD_TOOLS" = "true" ]; then
             mkdir -p "PVZ_Weihua"
             [ -d "src/tools" ] && cp -rv src/tools/. PVZ_Weihua/
@@ -48,21 +49,19 @@ jobs:
           # 2. 处理 IPT 及其备份 (LBF & LAF)
           mkdir -p "Setup/ipt" "Backup/IPT"
           
-          # 处理安装前文本
+          # 处理安装前
           if [ -n "${{ github.event.inputs.before_install_content }}" ]; then
-            TEXT="${{ github.event.inputs.before_install_content }}"
-            echo "$TEXT" > "Setup/ipt/IPF-${VER}.txt"
-            echo "$TEXT" > "Backup/IPT/LBF_${VER}_${TIME_STAMP}.txt"
+            echo "${{ github.event.inputs.before_install_content }}" > "Setup/ipt/IPF-${VER}.txt"
+            cp "Setup/ipt/IPF-${VER}.txt" "Backup/IPT/LBF_${VER}_${TIME_STAMP}.txt"
           else
             cp "src/IPT/IBF.txt" "Setup/ipt/IPF-${VER}.txt"
             cp "src/IPT/IBF.txt" "Backup/IPT/LBF_${VER}_${TIME_STAMP}.txt"
           fi
 
-          # 处理安装后文本
+          # 处理安装后
           if [ -n "${{ github.event.inputs.after_install_content }}" ]; then
-            TEXT="${{ github.event.inputs.after_install_content }}"
-            echo "$TEXT" > "Setup/ipt/IAF-${VER}.txt"
-            echo "$TEXT" > "Backup/IPT/LAF_${VER}_${TIME_STAMP}.txt"
+            echo "${{ github.event.inputs.after_install_content }}" > "Setup/ipt/IAF-${VER}.txt"
+            cp "Setup/ipt/IAF-${VER}.txt" "Backup/IPT/LAF_${VER}_${TIME_STAMP}.txt"
           else
             cp "src/IPT/IAF.txt" "Setup/ipt/IAF-${VER}.txt"
             cp "src/IPT/IAF.txt" "Backup/IPT/LAF_${VER}_${TIME_STAMP}.txt"
@@ -79,32 +78,41 @@ jobs:
           cp "$ISS_FILE" "Backup/iss/PVZ_Weihua_${VER}_${TIME_STAMP}.iss"
           cp "$ISS_FILE" "ConfigurationTemplate/iss/PVZ_Weihua.iss"
 
-      - name: Generate Build Log
+      - name: Generate Build Log (Python Way)
+        shell: python
         run: |
-          mkdir -p "Setup/Log"
-          LOG_FILE="Setup/Log/${VER}_${TIME_STAMP}.log"
-          [ "$ADD_TOOLS" = "true" ] && TOOLS_ST="Added / 已添加" || TOOLS_ST="Skipped / 已跳过"
+          import os
           
-          # 核心修复：EOF 必须置于行首，且前后无缩进
-          cat <<EOF > "$LOG_FILE"
-==================================================
+          ver = os.environ['VER']
+          ts = os.environ['TIME_STAMP']
+          lt = os.environ['LOG_TIME']
+          tools = "Added / 已添加" if os.environ['ADD_TOOLS'] == "true" else "Skipped / 已跳过"
+          actor = "${{ github.actor }}"
+          
+          log_content = f"""==================================================
            PVZ_Weihua Update Log / 更新日志
 ==================================================
-Build Time / 编译时间: $LOG_TIME (CST)
-Version / 版本号: $VER
+Build Time / 编译时间: {lt} (CST)
+Version / 版本号: {ver}
 --------------------------------------------------
 [Tasks / 任务详情]
 - ISS File Updated / ISS文件已更新: Setup/PVZ_Weihua.iss
 - IPT Backup / IPT备份: Backup/IPT/ (LBF & LAF)
-- Icon Path / 图标路径: Setup/ICO/weihua ${VER}.ico
-- Tools Folder / 工具文件夹: $TOOLS_ST
-- Installation Text / 安装文本: Updated (IPF-${VER}.txt, IAF-${VER}.txt)
+- Icon Path / 图标路径: Setup/ICO/weihua {ver}.ico
+- Tools Folder / 工具文件夹: {tools}
+- Installation Text / 安装文本: Updated (IPF-{ver}.txt, IAF-{ver}.txt)
 
 [System Info / 系统信息]
-- Triggered by / 触发者: ${{ github.actor }}
+- Triggered by / 触发者: {actor}
 ==================================================
-EOF
-          echo "✅ Log generated."
+"""
+          log_dir = "Setup/Log"
+          os.makedirs(log_dir, exist_ok=True)
+          log_path = os.path.join(log_dir, f"{ver}_{ts}.log")
+          
+          with open(log_path, "w", encoding="utf-8") as f:
+              f.write(log_content)
+          print(f"✅ Log generated at {log_path}")
 
       - name: Commit and Push
         run: |
