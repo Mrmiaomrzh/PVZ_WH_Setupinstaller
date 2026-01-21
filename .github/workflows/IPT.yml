@@ -102,7 +102,7 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          git add "Setup/ipt/" "Backup/iss/" "ConfigurationTemplate/iss/" "PVZ_Weihua/""
+          git add "Setup/ipt/" "Backup/iss/" "ConfigurationTemplate/iss/" "PVZ_Weihua/"
           
           git commit -m "Update ISS: version ${{ github.event.inputs.version_input }}"
           git push
