@@ -38,18 +38,26 @@ jobs:
           echo "TIME_STAMP=$(date +'%Y%m%d_%H%M')" >> $GITHUB_ENV
           echo "HAS_TOOLS=${{ github.event.inputs.add_tools }}" >> $GITHUB_ENV
 
-      - name: Execute Copy and Modify Logic
+      - name: Execute Clean and Copy Logic
         run: |
-          # 1. 變量準備
-          VER="${{ github.event.inputs.version_input }}"
-          
-          # 2. 處理 PVZ_Weihua 資料夾 (加入偵測與清理邏輯)
+          # 1. 處理 PVZ_Weihua 目錄
           if [ "${{ github.event.inputs.add_tools }}" = "true" ]; then
-            echo "🔎 正在檢查 PVZ_Weihua 目錄..."
-            if [ -d "PVZ_Weihua" ]; then
-              echo "🗑️ 偵測到舊資料夾，正在清理後重新複製..."
-              rm -rf "PVZ_Weihua"
+            echo "🔎 正在清理並處理 PVZ_Weihua 目錄..."
+            rm -rf "PVZ_Weihua"
+            mkdir -p "PVZ_Weihua"
+            
+            # 2. 複製 src/Tools 資料夾本身到 PVZ_Weihua 內
+            if [ -d "src/Tools" ]; then
+              cp -af src/Tools PVZ_Weihua/
+              echo "✅ 已將 src/Tools 文件夾完整複製到 PVZ_Weihua/"
+            elif [ -d "src/tools" ]; then
+              echo "⚠️ 偵測到小寫 src/tools，進行複製..."
+              cp -af src/tools PVZ_Weihua/
+            else
+              echo "❌ 錯誤: 找不到來源目錄 src/Tools"
+              exit 1
             fi
+          fi
             
             mkdir -p "PVZ_Weihua"
             if [ -d "src/Tools" ]; then
