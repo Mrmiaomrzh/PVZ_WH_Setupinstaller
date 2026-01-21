@@ -36,11 +36,11 @@ UninstallDisplayIcon={app}\{#MyAppExeName}
 DefaultGroupName=PVZ_Weihua {#MyAppVerNum}
 
 ; 许可文本:
-LicenseFile=..\PVZ_Weihua\{#MyAppVerNum}\IPT\LF\LF.txt
+LicenseFile=..\src\IPT\LF.txt
 ; 安装前文本:
-InfoBeforeFile=..\PVZ_Weihua\{#MyAppVerNum}\IPT\IBF\IBF-{#MyAppVerNum}.txt
+InfoBeforeFile=..\Setup\ipt\IBF-{#MyAppVerNum}.txt
 ; 安装后文本:
-InfoAfterFile=..\PVZ_Weihua\{#MyAppVerNum}\IPT\IAF\IAF-{#MyAppVerNum}.txt
+InfoAfterFile=..\Setup\ipt\IAF-{#MyAppVerNum}.txt
 
 ; 移除以下行以在管理安装模式下运行 (为所有用户安装)。
 ; PrivilegesRequired=lowest
