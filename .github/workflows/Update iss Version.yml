@@ -30,7 +30,7 @@ jobs:
           
           # 定义路径
           BACKUP_DIR="Backup/iss"
-          TEMPLATE_DIR="ConfigurationTemplate/iss"
+          TEMPLATE_DIR="src/iss"
           
           # 定义文件名
           BACKUP_FILE_NAME="PVZ_Weihua_${NEW_VERSION}_${TIME_STAMP}.iss"
