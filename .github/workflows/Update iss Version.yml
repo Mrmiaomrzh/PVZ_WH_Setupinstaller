@@ -33,7 +33,7 @@ jobs:
           
           # 定义新文件名及路径
           NEW_FILE_NAME="PVZ_Weihua_${NEW_VERSION}_${TIME_STAMP}.iss"
-          TARGET_DIR="Installation program"
+          TARGET_DIR="Backup/iss"
           TARGET_PATH="${TARGET_DIR}/${NEW_FILE_NAME}"
 
           # 确保目标目录存在
@@ -53,5 +53,5 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add "Installation program/"
-          git commit -m "Update ISS to version ${{ github.event.inputs.version_input }}"
+          git commit -m "Update iss to version ${{ github.event.inputs.version_input }}"
           git push
