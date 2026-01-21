@@ -31,7 +31,7 @@ jobs:
         run: |
           # 1. 基础变量
           VER="${{ github.event.inputs.version_input }}"
-          IPT_DIR="Setup/ipt"
+          IPT_DIR="Setup/IPT"
           mkdir -p "$IPT_DIR"
           
           # 定义目标文件名
