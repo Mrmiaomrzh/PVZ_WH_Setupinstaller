@@ -1,8 +1,8 @@
 ; PVZ_Weihua 安装程序
 
 #define MyAppName "植物大战僵尸威化版 PVZ_Weihua"
-#define MyAppVerNum "0.1"
-#define MyAppVerFull "0.1"
+#define MyAppVerNum ""
+#define MyAppVerFull ""
 #define AppVerName "威化版 v" + MyAppVerNum
 #define MyAppExeName "PlantsVsZombies.exe"
 #define MyaccName "PVZ_Weihua_威化版"
