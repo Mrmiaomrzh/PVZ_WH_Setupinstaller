@@ -40,34 +40,16 @@ jobs:
 
       - name: Execute Clean and Copy Logic
         run: |
-          # 1. 處理 PVZ_Weihua 目錄
-          if [ "${{ github.event.inputs.add_tools }}" = "true" ]; then
-            echo "🔎 正在清理並處理 PVZ_Weihua 目錄..."
-            rm -rf "PVZ_Weihua"
-            mkdir -p "PVZ_Weihua"
-            
-            # 2. 複製 src/Tools 資料夾本身到 PVZ_Weihua 內
-            if [ -d "src/Tools" ]; then
-              cp -af src/Tools PVZ_Weihua/
-              echo "✅ 已將 src/Tools 文件夾完整複製到 PVZ_Weihua/"
-            elif [ -d "src/tools" ]; then
-              echo "⚠️ 偵測到小寫 src/tools，進行複製..."
-              cp -af src/tools PVZ_Weihua/
-            else
-              echo "❌ 錯誤: 找不到來源目錄 src/Tools"
-              exit 1
-            fi
-          fi
-            
-            mkdir -p "PVZ_Weihua"
-            if [ -d "src/Tools" ]; then
-              cp -af src/Tools PVZ_Weihua/
-              echo "✅ Tools 已成功乾淨複製到 PVZ_Weihua"
-            else
-              echo "⚠️ 找不到來源 src/Tools，跳過複製"
-            fi
-          fi
+          # 處理 PVZ_Weihua 資料夾
+          echo "🔎 正在處理 PVZ_Weihua 目錄..."
+          rm -rf "PVZ_Weihua"
+          mkdir -p "PVZ_Weihua"
 
+          # 使用邏輯運算符處理 Tools 複製
+          # 只有當 ADD_TOOLS 為 true 且 src/Tools 資料夾存在時才執行複製
+          [ "$ADD_TOOLS" = "true" ] && [ -d "src/Tools" ] && cp -af "src/Tools" "PVZ_Weihua/" && echo "✅ 已包含 Tools 資料夾"
+          [ "$ADD_TOOLS" = "true" ] && [ ! -d "src/Tools" ] && echo "⚠️ 找不到 src/Tools 來源"
+                        
           # 3. 處理 IPT 文本與備份
           # 安裝前
           if [ -n "${{ github.event.inputs.before_install_content }}" ]; then
