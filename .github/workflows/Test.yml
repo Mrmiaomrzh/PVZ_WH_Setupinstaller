@@ -48,15 +48,15 @@ jobs:
             echo "🔎 正在檢查 PVZ_Weihua 目錄..."
             if [ -d "PVZ_Weihua" ]; then
               echo "🗑️ 偵測到舊資料夾，正在清理後重新複製..."
-              rm -rf "PVZ_Weihua"
+              rm -rf "PVZ_Weihua/Tools"
             fi
             
             mkdir -p "PVZ_Weihua"
-            if [ -d "src/tools" ]; then
-              cp -af src/tools/. PVZ_Weihua/
+            if [ -d "src/Tools" ]; then
+              cp -af src/Tools PVZ_Weihua/
               echo "✅ Tools 已成功乾淨複製到 PVZ_Weihua"
             else
-              echo "⚠️ 找不到來源 src/tools，跳過複製"
+              echo "⚠️ 找不到來源 src/Tools，跳過複製"
             fi
           fi
 
