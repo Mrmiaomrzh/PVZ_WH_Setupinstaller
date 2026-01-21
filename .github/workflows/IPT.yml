@@ -7,6 +7,10 @@ on:
         description: 'Version|版本号'
         required: true
         default: '1.0.0'
+      add_tools:
+        description: '是否添加 tools 文件夹？'
+        type: boolean
+        default: true
       before_install_content:
         description: '更新内容 (留空则沿用 src/IPT 中的默认文本)'
         required: false
