@@ -91,12 +91,11 @@ jobs:
           git config --local user.name "github-actions[bot]"
           
           # 顯式添加所有受影響的文件夾，避免被 .gitignore 忽略
-          git add -f Setup/PVZ_Weihua.iss
+          git add -f PVZ_Weihua/
           git add -f Setup/ipt/
           git add -f Backup/IPT/
           git add -f Backup/iss/
           git add -f ConfigurationTemplate/iss/
-          git add -f PVZ_Weihua/
 
           # 檢查是否有任何變更
           if git diff --staged --quiet; then
