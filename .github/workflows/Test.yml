@@ -44,6 +44,7 @@ jobs:
           echo "🧹 Cleaning up old directories..."
           rm -rf "PVZ_Weihua"
           rm -rf "Setup/ipt"
+          sleep 0.5
           mkdir -p "PVZ_Weihua"
           mkdir -p "Setup/ipt"
           mkdir -p "Backup/IPT"
@@ -53,6 +54,7 @@ jobs:
           # --- 2. 复制 Tools 文件夹 ---
           if [ "$SHOULD_ADD_TOOLS" = "true" ]; then
             echo "🚀 User selected [Yes], copying Tools..."
+            sleep 0.5
             if [ -d "src/Tools" ]; then
               cp -af "src/Tools" "PVZ_Weihua/"
               echo "✅ src/Tools folder copied successfully."
