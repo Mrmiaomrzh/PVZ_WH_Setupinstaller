@@ -1,25 +1,25 @@
-name: Update ISS, IPT and Tools (Fixed Copy & Push)
+name: Update PVZ_Weihua Assets
 
 on:
   workflow_dispatch:
     inputs:
       version_input:
-        description: '請輸入版本號 (如 1.2.0)'
+        description: '请输入版本号 (例如 1.2.0)'
         required: true
         default: '1.0.0'
       add_tools:
-        description: '是否添加 tools 文件夹到 PVZ_Weihua？'
+        description: '是否添加 Tools 文件夹到 PVZ_Weihua？'
         type: boolean
         default: false
       before_install_content:
-        description: '修改【安裝前文本】內容'
+        description: '修改安装前文本 (留空则使用默认)'
         required: false
       after_install_content:
-        description: '修改【安裝後文本】內容'
+        description: '修改安装后文本 (留空则使用默认)'
         required: false
 
 jobs:
-  build:
+  sync-assets:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -32,94 +32,97 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Initialize Env
+      - name: Initialize Environment
         run: |
           echo "VER=${{ github.event.inputs.version_input }}" >> $GITHUB_ENV
           echo "TIME_STAMP=$(date +'%Y%m%d_%H%M')" >> $GITHUB_ENV
-          echo "HAS_TOOLS=${{ github.event.inputs.add_tools }}" >> $GITHUB_ENV
+          echo "SHOULD_ADD_TOOLS=${{ github.event.inputs.add_tools }}" >> $GITHUB_ENV
 
-      - name: Execute Clean and Copy Logic
+      - name: Process Files and Directories
         run: |
-          # 處理 PVZ_Weihua 資料夾
-          echo "🔎 正在處理 PVZ_Weihua 目錄..."
+          # --- 1. 环境清理 ---
+          echo "🧹 Cleaning up old directories..."
           rm -rf "PVZ_Weihua"
+          rm -rf "Setup/ipt"
           mkdir -p "PVZ_Weihua"
+          mkdir -p "Setup/ipt"
+          mkdir -p "Backup/IPT"
+          mkdir -p "Backup/iss"
+          mkdir -p "ConfigurationTemplate/iss"
 
-          # 複製 src/Tools 到 PVZ_Weihua 資料夾
-          if [ -d "src/Tools" ]; then
-            cp -af "src/Tools" "PVZ_Weihua/"
-            echo "✅ 已複製 Tools 資料夾到 PVZ_Weihua"
+          # --- 2. 复制 Tools 文件夹 ---
+          if [ "$SHOULD_ADD_TOOLS" = "true" ]; then
+            echo "🚀 User selected [Yes], copying Tools..."
+            if [ -d "src/Tools" ]; then
+              cp -af "src/Tools" "PVZ_Weihua/"
+              echo "✅ src/Tools folder copied successfully."
+            elif [ -d "src/tools" ]; then
+              echo "⚠️ src/Tools (Upper case) not found, copying src/tools (Lower case)..."
+              cp -af "src/tools" "PVZ_Weihua/"
+            else
+              echo "❌ Error: Source Tools folder not found in src/"
+              exit 1
+            fi
           else
-            echo "⚠️ 找不到 src/Tools 來源"
+            echo "ℹ️ User selected [No], skipping Tools folder."
           fi
 
-          # 使用邏輯運算符處理 Tools 複製
-          # 只有當 ADD_TOOLS 為 true 且 src/Tools 資料夾存在時才執行複製
-          [ "$ADD_TOOLS" = "true" ] && [ -d "src/Tools" ] && cp -af "src/Tools" "PVZ_Weihua/" && echo "✅ 已包含 Tools 資料夾"
-          [ "$ADD_TOOLS" = "true" ] && [ ! -d "src/Tools" ] && echo "⚠️ 找不到 src/Tools 來源"
-                        
-          # 3. 處理 IPT 文本與備份
-          # 安裝前
-          if [ -n "${{ github.event.inputs.before_install_content }}" ]; then
-            echo "${{ github.event.inputs.before_install_content }}" > "Setup/ipt/IPF-${VER}.txt"
-          else
+          # --- 3. 处理 IPT 文本与备份 ---
+          # 处理安装前文本 (LBF)
+          B_VAL="${{ github.event.inputs.before_install_content }}"
+          if [ -z "$B_VAL" ]; then
             cp -f "src/IPT/IBF.txt" "Setup/ipt/IPF-${VER}.txt" || touch "Setup/ipt/IPF-${VER}.txt"
+          else
+            echo "$B_VAL" > "Setup/ipt/IPF-${VER}.txt"
           fi
           cp -f "Setup/ipt/IPF-${VER}.txt" "Backup/IPT/LBF_${VER}_${TIME_STAMP}.txt"
 
-          # 安裝後
-          if [ -n "${{ github.event.inputs.after_install_content }}" ]; then
-            echo "${{ github.event.inputs.after_install_content }}" > "Setup/ipt/IAF-${VER}.txt"
-          else
+          # 处理安装后文本 (LAF)
+          A_VAL="${{ github.event.inputs.after_install_content }}"
+          if [ -z "$A_VAL" ]; then
             cp -f "src/IPT/IAF.txt" "Setup/ipt/IAF-${VER}.txt" || touch "Setup/ipt/IAF-${VER}.txt"
+          else
+            echo "$A_VAL" > "Setup/ipt/IAF-${VER}.txt"
           fi
           cp -f "Setup/ipt/IAF-${VER}.txt" "Backup/IPT/LAF_${VER}_${TIME_STAMP}.txt"
 
-          # 4. 修改 ISS 原文件
+          # --- 4. 修改 ISS 文件 (PVZ_Weihua_Setup.iss) ---
           ISS_FILE="Setup/PVZ_Weihua.iss"
           if [ -f "$ISS_FILE" ]; then
-            # 根據你上傳的內容準確匹配行 
+            echo "📝 Modifying $ISS_FILE ..."
+            # 更新版本号定义
             sed -i "s/#define MyAppVerNum \".*\"/#define MyAppVerNum \"$VER\"/" "$ISS_FILE"
             sed -i "s/#define MyAppVerFull \".*\"/#define MyAppVerFull \"$VER\"/" "$ISS_FILE"
-            # 修改圖標路徑
+            
+            # 更新安装程序图标路径 (指向 Setup\ICO)
             sed -i "s|SetupIconFile=.*|SetupIconFile=Setup\\\\ICO\\\\weihua ${VER}.ico|" "$ISS_FILE"
             
-            # 同步到備份位元置
+            # 分发副本
             cp -f "$ISS_FILE" "Backup/iss/PVZ_Weihua_${VER}_${TIME_STAMP}.iss"
             cp -f "$ISS_FILE" "ConfigurationTemplate/iss/PVZ_Weihua.iss"
-            echo "✅ ISS file updated and backed up"
+            echo "✅ ISS modification and backup done."
           else
-            echo "❌ Error: $ISS_FILE not found"
+            echo "❌ Error: $ISS_FILE not found in Setup/ directory."
             exit 1
           fi
 
-      - name: Force Commit and Push
+      - name: Commit and Push Changes
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          # 顯式添加所有受影響的文件夾，避免被 .gitignore 忽略
-          git add -f PVZ_Weihua/
+          # 强制添加所有目标目录，绕过可能的 .gitignore 限制
+          git add -f Setup/PVZ_Weihua.iss
           git add -f Setup/ipt/
           git add -f Backup/IPT/
           git add -f Backup/iss/
           git add -f ConfigurationTemplate/iss/
+          git add -f PVZ_Weihua/
 
-          # 檢查是否有任何變更
           if git diff --staged --quiet; then
-            echo "沒有檢測到任何文件變更，跳過提交。"
+            echo "No changes detected, skipping commit."
           else
-            git commit -m "Update v${VER} - Auto Sync Assets"
+            git commit -m "Auto-update v${VER} (Clean Sync & Tools Included)"
             git push origin HEAD
-            echo "🚀 文件已成功推送至倉庫"
-          fi
-
-          # 強制提交 ISS 文件以確保版本號更新被記錄
-          if [ -f "PVZ_Weihua/Tools" ]; then
-            git add -f "PVZ_Weihua/Tools"
-            if ! git diff --cached --quiet "PVZ_Weihua/Tools"; then
-              git commit -m "Update v${VER} - Version Number Changed"
-              git push origin HEAD
-              echo "🚀 版本號更新已提交"
-            fi
+            echo "🚀 Repository updated successfully!"
           fi
