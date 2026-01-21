@@ -50,16 +50,10 @@ jobs:
               -e "s/\(#define MyAppVerFull \)\".*\"/\1\"$NEW_VERSION\"/" \
               "$ORIGINAL_FILE" > "${TEMPLATE_DIR}/${TEMPLATE_FILE_NAME}"
 
-          echo "✅ 备份已生成: ${BACKUP_DIR}/${BACKUP_FILE_NAME}"
-          echo "✅ 预安装文件已更新: ${TEMPLATE_DIR}/${TEMPLATE_FILE_NAME}"
-
       - name: Commit and Push
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          
-          # 添加所有涉及的目录
+          git config --local user.name "github-actions[bot]"  
           git add "Backup/iss/" "ConfigurationTemplate/iss/"
-  
-          git commit -m "Update ISS: version ${{ github.event.inputs.version_input }}"
+          git commit -m "Update ISS: Version ${{ github.event.inputs.version_input }}"
           git push
