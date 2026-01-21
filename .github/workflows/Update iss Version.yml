@@ -53,5 +53,5 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add "Installation program/"
-          git commit -m "Update ISS: v$NEW_VERSION (CST $TIME_STAMP)"
+          git commit -m "git commit -m "Update ISS: version ${{ github.event.inputs.version_input }}"
           git push
