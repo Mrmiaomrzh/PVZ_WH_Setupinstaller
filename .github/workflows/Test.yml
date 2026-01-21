@@ -101,7 +101,6 @@ jobs:
             
             # 分发副本
             cp -f "$ISS_FILE" "Backup/iss/PVZ_Weihua_${VER}_${TIME_STAMP}.iss"
-            cp -f "$ISS_FILE" "ConfigurationTemplate/iss/PVZ_Weihua.iss"
             echo "✅ ISS modification and backup done."
           else
             echo "❌ Error: $ISS_FILE not found in Setup/ directory."
@@ -116,15 +115,12 @@ jobs:
           # 强制添加所有目标目录，绕过可能的 .gitignore 限制
           git add -f Setup/PVZ_Weihua.iss
           git add -f Setup/ipt/
-          git add -f Backup/IPT/
-          git add -f Backup/iss/
-          git add -f ConfigurationTemplate/iss/
           git add -f PVZ_Weihua/
 
           if git diff --staged --quiet; then
             echo "No changes detected, skipping commit."
           else
-            git commit -m "Auto-update v${VER} (Clean Sync & Tools Included)"
+            git commit -m "Auto-update v${VER}"
             git push origin HEAD
             echo "🚀 Repository updated successfully!"
           fi
