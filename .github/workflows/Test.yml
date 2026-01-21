@@ -49,11 +49,11 @@ jobs:
 
           # 2. 處理 Tools (強制複製)
           if [ "$HAS_TOOLS" = "true" ]; then
-            if [ -d "src/tools" ]; then
-              cp -af src/tools/. PVZ_Weihua/
+            if [ -d "src/Tools" ]; then
+              cp -af src/Tools PVZ_Weihua/
               echo "✅ Tools copied to PVZ_Weihua"
             else
-              echo "⚠️ src/tools not found"
+              echo "⚠️ src/Tools not found"
             fi
           fi
 
