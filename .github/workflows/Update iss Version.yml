@@ -1,0 +1,51 @@
+name: Update PVZ version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version, e.g. 0.4.6.3 （每次手动输入）'
+        required: true
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate version input
+        run: |
+          if [ -z "${{ github.event.inputs.version }}" ]; then
+            echo "version is required"
+            exit 1
+          fi
+          if ! echo "${{ github.event.inputs.version }}" | grep -Eq '^[0-9]+(\.[0-9]+)*$'; then
+            echo "invalid version format"
+            exit 1
+          fi
+
+      - name: Update MyAppVer in PVZ_Weihua.iss
+        run: |
+          file=Setup/PVZ_Weihua.iss
+          new="${{ github.event.inputs.version }}"
+          if [ ! -f "$file" ]; then
+            echo "File $file not found"
+            exit 1
+          fi
+          sed -E -i.bak "s/^#define MyAppVerNum[[:space:]]+\"[^"]+\"/#define MyAppVerNum \"${new}\"/" "$file"
+          sed -E -i.bak "s/^#define MyAppVerFull[[:space:]]+\"[^"]+\"/#define MyAppVerFull \"${new}\"/" "$file"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$file"
+          git commit -m "chore: bump PVZ version to ${new}" || echo "No changes to commit"
+
+      - name: Push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push origin HEAD:feature/add-update-version-workflow
