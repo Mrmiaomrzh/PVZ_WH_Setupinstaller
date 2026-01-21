@@ -42,7 +42,7 @@ jobs:
           # 1. 处理 Tools 文件夹
           if [ "$ADD_TOOLS" = "true" ]; then
             mkdir -p "PVZ_Weihua"
-            [ -d "src/tools" ] && cp -rv src/tools/. PVZ_Weihua/
+            [ -d "src/Tools" ] && cp -rv src/Tools PVZ_Weihua/
           fi
 
           # 2. 处理 IPT 及其备份 (LBF & LAF)
@@ -70,7 +70,7 @@ jobs:
         run: |
           ISS_FILE="Setup/PVZ_Weihua.iss"
           
-          # 直接原地修改原文件
+          # 修改原文件
           sed -i "s/#define MyAppVerNum \".*\"/#define MyAppVerNum \"$VER\"/" "$ISS_FILE"
           sed -i "s/#define MyAppVerFull \".*\"/#define MyAppVerFull \"$VER\"/" "$ISS_FILE"
           sed -i "s|SetupIconFile=.*|SetupIconFile=Setup\\\\ICO\\\\weihua ${VER}.ico|" "$ISS_FILE"
