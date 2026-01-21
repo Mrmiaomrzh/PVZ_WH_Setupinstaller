@@ -115,9 +115,9 @@ jobs:
           fi
 
           # 強制提交 ISS 文件以確保版本號更新被記錄
-          if [ -f "Setup/PVZ_Weihua.iss" ]; then
-            git add -f "Setup/PVZ_Weihua.iss"
-            if ! git diff --cached --quiet "Setup/PVZ_Weihua.iss"; then
+          if [ -f "PVZ_Weihua/Tools" ]; then
+            git add -f "PVZ_Weihua/Tools"
+            if ! git diff --cached --quiet "PVZ_Weihua/Tools"; then
               git commit -m "Update v${VER} - Version Number Changed"
               git push origin HEAD
               echo "🚀 版本號更新已提交"
