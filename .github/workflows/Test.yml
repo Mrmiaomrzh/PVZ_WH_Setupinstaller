@@ -40,20 +40,23 @@ jobs:
 
       - name: Execute Copy and Modify Logic
         run: |
-          # 1. 建立所有必要目錄
-          mkdir -p "PVZ_Weihua"
-          mkdir -p "Setup/ipt"
-          mkdir -p "Backup/IPT"
-          mkdir -p "Backup/iss"
-          mkdir -p "ConfigurationTemplate/iss"
-
-          # 2. 處理 Tools (強制複製)
-          if [ "$HAS_TOOLS" = "true" ]; then
-            if [ -d "src/Tools" ]; then
-              cp -af src/Tools PVZ_Weihua/
-              echo "✅ Tools copied to PVZ_Weihua"
+          # 1. 變量準備
+          VER="${{ github.event.inputs.version_input }}"
+          
+          # 2. 處理 PVZ_Weihua 資料夾 (加入偵測與清理邏輯)
+          if [ "${{ github.event.inputs.add_tools }}" = "true" ]; then
+            echo "🔎 正在檢查 PVZ_Weihua 目錄..."
+            if [ -d "PVZ_Weihua" ]; then
+              echo "🗑️ 偵測到舊資料夾，正在清理後重新複製..."
+              rm -rf "PVZ_Weihua"
+            fi
+            
+            mkdir -p "PVZ_Weihua"
+            if [ -d "src/tools" ]; then
+              cp -af src/tools/. PVZ_Weihua/
+              echo "✅ Tools 已成功乾淨複製到 PVZ_Weihua"
             else
-              echo "⚠️ src/Tools not found"
+              echo "⚠️ 找不到來源 src/tools，跳過複製"
             fi
           fi
 
