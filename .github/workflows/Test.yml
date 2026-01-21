@@ -48,7 +48,7 @@ jobs:
             echo "🔎 正在檢查 PVZ_Weihua 目錄..."
             if [ -d "PVZ_Weihua" ]; then
               echo "🗑️ 偵測到舊資料夾，正在清理後重新複製..."
-              rm -rf "PVZ_Weihua/Tools"
+              rm -rf "PVZ_Weihua"
             fi
             
             mkdir -p "PVZ_Weihua"
