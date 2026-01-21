@@ -66,18 +66,31 @@ jobs:
           fi
 
           # 处理 Tools 文件夹
-          # 如果用户勾选了 "add_tools"
+          - name: Process Logic
+        run: |
+          # --- 1. 变量初始化 ---
+          VER="${{ github.event.inputs.version_input }}"
+          # 强制将输入转换为小写，确保判断稳健
+          ADD_TOOLS_RAW="${{ github.event.inputs.add_tools }}"
+          ADD_TOOLS=$(echo "$ADD_TOOLS_RAW" | tr '[:upper:]' '[:lower:]')
+          
+          echo "Debug: 接收到的 add_tools 原值 = '$ADD_TOOLS_RAW'"
+          echo "Debug: 转换后的判断值 = '$ADD_TOOLS'"
+
+          # --- 2. 处理 Tools 文件夹复制 ---
           if [ "$ADD_TOOLS" = "true" ]; then
+            echo "🚀 正在执行复制操作..."
             mkdir -p "PVZ_Weihua"
             if [ -d "src/tools" ]; then
-              cp -r src/tools/* PVZ_Weihua/
+              cp -rv src/tools/. PVZ_Weihua/
+              echo "✅ tools 文件夹内容已成功复制到 PVZ_Weihua"
             else
-              echo "⚠️ 警告: 找不到 src/tools 目录，跳过复制"
+              echo "❌ 错误: 找不到源目录 src/tools"
+              exit 1
             fi
           else
-            echo "ℹ️ 用户选择不添加 tools 文件夹"
+            echo "ℹ️ 用户选择 [否] 或未勾选，不执行复制。"
           fi
-
 
       - name: Process ISS File
         run: |
