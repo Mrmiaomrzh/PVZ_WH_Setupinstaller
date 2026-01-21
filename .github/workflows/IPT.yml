@@ -38,18 +38,26 @@ jobs:
           BEFORE_NAME="IPF-${VER}.txt"
           AFTER_NAME="IAF-${VER}.txt"
           
-          # 处理更新内容
+         # 处理安装前内容 (IBF.txt)
           if [ -n "${{ github.event.inputs.before_install_content }}" ]; then
-            echo "${{ github.event.inputs.before_install_content }}" > "$BEFORE_FILE"
+            cat <<EOF > "$BEFORE_FILE"
+          ${{ github.event.inputs.before_install_content }}
+          EOF
+            echo "✅ 已根据输入修改并生成: $BEFORE_FILE"
           else
-            cp "src/IPT/IBF.txt" "$BEFORE_FILE"
+            cp "src/IPT/IBF.txt" "$BEFORE_FILE" || { echo "❌ 找不到 src/IPT/IBF.txt"; exit 1; }
+            echo "ℹ️ 已使用 src/IPT 默认模板"
           fi
 
-          # 处理安装后内容
+          # 4. 处理安装后内容 (IAF.txt)
           if [ -n "${{ github.event.inputs.after_install_content }}" ]; then
-            echo "${{ github.event.inputs.after_install_content }}" > "$AFTER_FILE"
+            cat <<EOF > "$AFTER_FILE"
+          ${{ github.event.inputs.after_install_content }}
+          EOF
+            echo "✅ 已根据输入修改并生成: $AFTER_FILE"
           else
-            cp "src/IPT/IAF.txt" "$AFTER_FILE"
+            cp "src/IPT/IAF.txt" "$AFTER_FILE" || { echo "❌ 找不到 src/IPT/IAF.txt"; exit 1; }
+            echo "ℹ️ 已使用 src/IPT 默认模板"
           fi
 
       - name: Commit and Push
