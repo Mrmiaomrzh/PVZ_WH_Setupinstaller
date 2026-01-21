@@ -42,7 +42,7 @@ jobs:
           if [ -n "${{ github.event.inputs.before_install_content }}" ]; then
             echo "${{ github.event.inputs.before_install_content }}" > "$BEFORE_FILE"
           else
-            cp "src/IPT/LBF.txt" "$BEFORE_FILE"
+            cp "src/IPT/IBF.txt" "$BEFORE_FILE"
           fi
 
           # 处理安装后内容
